@@ -4,17 +4,17 @@ const router = express.Router()
 
 router.get('/test', (req, res) => {
     res.send({
-        msg: 'Cities test route.'
+        msg: 'Itineraries test route.'
     })
 })
 
 module.exports = router;
 
-const cityModel = require('../model/cityModel')
+const itineraryModel = require('../model/itineraryModel')
 
 router.get('/all',
     (req, res) => {
-        cityModel.find()
+        itineraryModel.find()
             .then(files => {
                 res.send(files)
             })
@@ -23,7 +23,7 @@ router.get('/all',
 
 router.post('/', (req, res) => {
     console.log(req.body)
-    const newCity = new cityModel({
+    const Itinerary = new itineraryModel({
         name: req.body.name,
         country: req.body.country,
         image: req.body.image
@@ -36,14 +36,14 @@ router.post('/', (req, res) => {
     // 2.2 if not existing, save to db
 
 
-    cityModel.find()
-        .then(cities => {
-            if (cities.filter(city => city.name === newCity.name).length > 0) {
-                res.status(400).send("The city already exists in the database")
+    itineraryModel.find()
+        .then(itineraries => {
+            if (itineraries.filter(Itinerary => Itinerary.name === newItinerary.name).length > 0) {
+                res.status(400).send("The itinerary already exists in the database")
             } else(
-                newCity.save()
-                .then(city => {
-                    res.send(city)
+                newItinerary.save()
+                .then(itinerary => {
+                    res.send(itinerary)
                 })
                 .catch(err => {
                     res.status(500).send("Server error")
@@ -53,14 +53,17 @@ router.post('/', (req, res) => {
         .catch(err => console.log(err));
 });
 
-router.get('/:name',
+router.get('/:cityId',
     (req, res) => {
-        let cityRequested = req.params.name;
-        cityModel.findOne({
-                name: cityRequested
+        let cityId = req.params.cityId;
+        itineraryModel.find({
+                city: cityId
             })
-            .then(city => {
-                res.send(city)
+            .populate({
+                path: 'city'
+            })
+            .then(itinerary => {
+                res.send(itinerary)
             })
             .catch(err => console.log(err));
     });
